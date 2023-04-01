@@ -3,10 +3,22 @@ export class WhereClause {
     this.conditions = conditions;
   }
 
+  static eq(field, value) {
+    return new WhereClause({
+      [field]: new SimpleClause(field, "eq", value),
+    });
+  }
+
   eq(field, value) {
     return new WhereClause({
       ...this.conditions,
       [field]: new SimpleClause(field, "eq", value),
+    });
+  }
+
+  static ne(field, value) {
+    return new WhereClause({
+      [field]: new SimpleClause(field, "ne", value),
     });
   }
 
@@ -17,6 +29,12 @@ export class WhereClause {
     });
   }
 
+  static in(field, value) {
+    return new WhereClause({
+      [field]: new SimpleClause(field, "in", value),
+    });
+  }
+
   in(field, value) {
     return new WhereClause({
       ...this.conditions,
@@ -24,10 +42,39 @@ export class WhereClause {
     });
   }
 
+  static like(field, value) {
+    return new WhereClause({
+      [field]: new SimpleClause(field, "like", value),
+    });
+  }
+
   like(field, value) {
     return new WhereClause({
       ...this.conditions,
       [field]: new SimpleClause(field, "like", value),
+    });
+  }
+
+  static lt(field, value) {
+    return new WhereClause({
+      [field]: new SimpleClause(field, "lt", value),
+    });
+  }
+
+  lt(field, value) {
+    return new WhereClause({
+      ...this.conditions,
+      [field]: new SimpleClause(field, "lt", value),
+    });
+  }
+
+  static and(...clauses) {
+    if (clauses.length === 1) {
+      return new WhereClause({ ...clauses[0].conditions });
+    }
+
+    return new WhereClause({
+      and: new AndClause(...clauses),
     });
   }
 
@@ -39,6 +86,16 @@ export class WhereClause {
     return new WhereClause({
       ...this.conditions,
       and: new AndClause(...clauses),
+    });
+  }
+
+  static or(...clauses) {
+    if (clauses.length === 1) {
+      return new WhereClause({ ...clauses[0].conditions });
+    }
+
+    return new WhereClause({
+      or: new OrClause(...clauses),
     });
   }
 
