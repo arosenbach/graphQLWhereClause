@@ -59,6 +59,27 @@ describe("and", () => {
   });
 });
 
+describe("or", () => {
+  test("or() with one argument is ignored", () => {
+    const whereClause = new WhereClause().or(
+      new WhereClause().like("Location", "%San%")
+    );
+    expect(whereClause.toString()).toEqual(
+      `where: { Location: { like: "%San%" } }`
+    );
+  });
+
+  test("two simple arguments", () => {
+    const whereClause = new WhereClause().or(
+      new WhereClause().like("Location", "%San%"),
+      new WhereClause().eq("Name", "Acme")
+    );
+    expect(`${whereClause.toString()}`).toEqual(
+      `where: { or: [{ Location: { like: "%San%" } }, { Name: { eq: "Acme" } }] }`
+    );
+  });
+});
+
 //   it("", () => {
 //     const whereBuilder = new WhereClause()
 //       .eq("name", "John")

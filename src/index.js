@@ -42,6 +42,17 @@ export class WhereClause {
     });
   }
 
+  or(...clauses) {
+    if (clauses.length === 1) {
+      return new WhereClause({ ...this.conditions, ...clauses[0].conditions });
+    }
+
+    return new WhereClause({
+      ...this.conditions,
+      or: new OrClause(...clauses),
+    });
+  }
+
   _toString() {
     return `{ ${Object.values(this.conditions)
       .map((clause) => clause.toString())
@@ -72,6 +83,18 @@ class AndClause {
 
   toString() {
     return `and: [${this.whereClauses
+      .map((whereClause) => whereClause._toString())
+      .join(", ")}]`;
+  }
+}
+
+class OrClause {
+  constructor(...whereClauses) {
+    this.whereClauses = whereClauses;
+  }
+
+  toString() {
+    return `or: [${this.whereClauses
       .map((whereClause) => whereClause._toString())
       .join(", ")}]`;
   }
