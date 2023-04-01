@@ -3,76 +3,76 @@ export class WhereClause {
     this.conditions = conditions;
   }
 
-  eq(property, value) {
+  eq(field, value) {
     return new WhereClause({
       ...this.conditions,
-      [property]: { operator: "eq", value },
+      [field]: new SimpleClause(field, "eq", value),
     });
   }
 
-  ne(property, value) {
+  ne(field, value) {
     return new WhereClause({
       ...this.conditions,
-      [property]: { operator: "ne", value },
+      [field]: new SimpleClause(field, "ne", value),
     });
   }
 
-  like(property, value) {
+  in(field, value) {
     return new WhereClause({
       ...this.conditions,
-      [property]: { operator: "like", value },
+      [field]: new SimpleClause(field, "in", value),
+    });
+  }
+
+  like(field, value) {
+    return new WhereClause({
+      ...this.conditions,
+      [field]: new SimpleClause(field, "like", value),
     });
   }
 
   and(...clauses) {
     if (clauses.length === 1) {
-      Object.assign(this.conditions, clauses[0].conditions);
-      return this;
+      return new WhereClause({ ...this.conditions, ...clauses[0].conditions });
     }
-
-    let andConditions = [];
-    clauses.forEach((clause) => {
-      andConditions.push(clause.conditions);
-    });
 
     return new WhereClause({
       ...this.conditions,
-      and: andConditions,
+      and: new AndClause(...clauses),
     });
   }
 
-  toString(intermediate = false) {
-    const clauses = Object.entries(this.conditions).map(
-      ([property, condition]) => {
-        if (property === "and") {
-          const andClauses = condition.map((clause) =>
-            new WhereClause(clause).toString(true)
-          );
-          return `and: [${andClauses.join(", ")}]`;
-        } else {
-          return `${property}: { ${condition.operator}: ${JSON.stringify(
-            condition.value
-          )} }`;
-        }
-      }
-    );
-    if (intermediate) {
-      return `{ ${clauses.join(", ")} }`;
-    }
-    return `where: { ${clauses.join(", ")} }`;
+  _toString() {
+    return `{ ${Object.values(this.conditions)
+      .map((clause) => clause.toString())
+      .join(", ")} }`;
+  }
+
+  toString() {
+    return `where: ${this._toString()}`;
+  }
+}
+
+class SimpleClause {
+  constructor(field, operator, value) {
+    this.field = field;
+    this.operator = operator;
+    this.value = value;
+  }
+
+  toString() {
+    return `${this.field}: { ${this.operator}: ${JSON.stringify(this.value)} }`;
   }
 }
 
 class AndClause {
-  constructor(...clauses) {
-    this.conditions = { and: clauses.map((clause) => clause.conditions) };
+  constructor(...whereClauses) {
+    this.whereClauses = whereClauses;
   }
 
-  and(...clauses) {
-    let andClause = new AndClause(...this.conditions);
-    clauses.forEach((clause) => {
-      andClause = new AndClause(andClause, clause);
-    });
-    return andClause;
+  toString() {
+    return `and: [${this.whereClauses
+      .map((whereClause) => whereClause._toString())
+      .join(", ")}]`;
   }
 }

@@ -7,6 +7,7 @@ describe.each([
   ["%cme", `"%cme"`],
   ["Acm%", `"Acm%"`],
   ["%cm%", `"%cm%"`],
+  [["a", "b", "c"], `["a","b","c"]`],
 ])("String values: %s", (value, expectedValue) => {
   test("eq", () => {
     const whereClause = new WhereClause().eq("Name", value);
@@ -26,6 +27,13 @@ describe.each([
     const whereClause = new WhereClause().like("Name", value);
     expect(whereClause.toString()).toEqual(
       `where: { Name: { like: ${expectedValue} } }`
+    );
+  });
+
+  test("in", () => {
+    const whereClause = new WhereClause().in("Name", value);
+    expect(whereClause.toString()).toEqual(
+      `where: { Name: { in: ${expectedValue} } }`
     );
   });
 });
