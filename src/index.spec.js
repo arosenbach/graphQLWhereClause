@@ -45,7 +45,7 @@ describe("and", () => {
       new WhereClause().like("Location", "%San%"),
       new WhereClause().eq("Name", "Acme")
     );
-    expect(whereClause.toString()).toEqual(
+    expect(`${whereClause.toString()}`).toEqual(
       `where: { and: [{ Location: { like: "%San%" } }, { Name: { eq: "Acme" } }] }`
     );
   });
