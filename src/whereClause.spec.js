@@ -1,4 +1,4 @@
-import { WhereClause } from "./index";
+import { WhereClause } from "./whereClause";
 
 describe.each([
   [null, `null`],
